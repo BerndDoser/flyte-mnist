@@ -1,7 +1,7 @@
 # flyte-mnist
 
 A template that provides an end-to-end example of how to use Flyte to train a model on the MNIST dataset.
-This uses the Pytorch package built for versoin 2.0
+
 ## Usage
 
 To get up and running with your Flyte project, we recommend following the
@@ -35,12 +35,30 @@ To make things easy, we created a default public OCI image that you can use to r
 ### Pyflyte Run
 ```bash
 pyflyte run --remote --image ghcr.io/flyteorg/flytekit-python-templates:mnist-training-latest --n_epoch 100 --gpu_enabled
-
-
+```
 
 ### Pyflyte Register
 Or you can register the workflow and launch it from the Flyte console.
 ```bash
 pyflyte register workflows -p flytesnacks -d development --image ghcr.io/flyteorg/flytekit-python-templates:mnist-latest
+```
 
+### Create a new Flyte project:
+```bash
+flytectl create project --name seminar --id seminar --description "seminar showcases"
+```
 
+### Run example workflow:
+```bash
+pyflyte run --remote -p seminar -d development workflow_example.py say_hello --name Ada
+```
+
+### Register a workflow:
+```bash
+pyflyte register -p seminar -d development workflow_parallel.py
+```
+
+### Register a new version of an existing workflow:
+```bash
+pyflyte register -p seminar -d development workflow_hipster.py -v 0.2
+```
