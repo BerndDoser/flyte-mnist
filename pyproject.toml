@@ -2,13 +2,14 @@
 package-mode = false
 
 [tool.poetry.dependencies]
-flytekit = "^1.13"
 python = ">=3.12,<3.13"
+
+datasets = "^3.0.0"
+flytekit = "^1.13"
+flytekitplugins-deck-standard = "^1.13.5"
+flytekitplugins-kfpytorch = "^1.13.5"
+ipykernel = "^6.29.5"
+lightning = "^2.4.0"
+minio = "^7.2.9"
 torch = "^2.2"
 torchvision = "^0"
-lightning = "^2.4.0"
-flytekitplugins-kfpytorch = "^1.13.5"
-minio = "^7.2.9"
-ipykernel = "^6.29.5"
-datasets = "^3.0.0"
-flytekitplugins-deck-standard = "^1.13.5"
