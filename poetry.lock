@@ -3037,7 +3037,6 @@ description = "Pure-Python implementation of ASN.1 types and DER/BER/CER codecs 
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pyasn1-0.6.1-py3-none-any.whl", hash = "sha256:0d632f46f2ba09143da3a8afe9e33fb6f92fa2320ab7e886e2d0f7672af84629"},
     {file = "pyasn1-0.6.1.tar.gz", hash = "sha256:6f580d2bdd84365380830acf45550f2511469f673cb4a5ae3857a3170128b034"},
 ]
 
@@ -3048,7 +3047,6 @@ description = "A collection of ASN.1-based protocols modules"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pyasn1_modules-0.4.1-py3-none-any.whl", hash = "sha256:49bfa96b45a292b711e986f222502c1c9a5e1f4e568fc30e2574a6c7d07838fd"},
     {file = "pyasn1_modules-0.4.1.tar.gz", hash = "sha256:c28e2dbf9c06ad61c71a075c7e0f9fd0f1b0bb2d2ad4377f240d33ac2ab60a7c"},
 ]
 
@@ -3547,6 +3545,59 @@ awscli = ["aiobotocore[awscli] (>=2.5.4,<3.0.0)"]
 boto3 = ["aiobotocore[boto3] (>=2.5.4,<3.0.0)"]
 
 [[package]]
+name = "s3torchconnector"
+version = "1.2.5"
+description = "S3 connector integration for PyTorch"
+optional = false
+python-versions = "<3.13,>=3.8"
+files = [
+    {file = "s3torchconnector-1.2.5.tar.gz", hash = "sha256:eca15f359235cdc0283b419847b53bfb7264b9cfca63cf3ccc7f3d68fa53124d"},
+]
+
+[package.dependencies]
+s3torchconnectorclient = ">=1.2.4"
+torch = ">=2.0.1"
+
+[package.extras]
+e2e = ["Pillow (>=10.3.0)", "boto3", "numpy (<2)", "pytest-xdist", "torchdata", "torchvision"]
+lightning = ["lightning (>=2.0)"]
+lightning-tests = ["s3fs", "s3torchconnector[lightning]"]
+test = ["black", "flake8", "hypothesis", "mypy", "pytest", "pytest-timeout"]
+
+[[package]]
+name = "s3torchconnectorclient"
+version = "1.2.5"
+description = "Internal S3 client implementation for s3torchconnector"
+optional = false
+python-versions = "<3.13,>=3.8"
+files = [
+    {file = "s3torchconnectorclient-1.2.5-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:fee23e951bd690306e25ee879e6d1d421b10d1d5d3777ecf6021db8b00106940"},
+    {file = "s3torchconnectorclient-1.2.5-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:f5f430571f3dc57203678407b9152fd5b08194aa72ced634d3adaf7bed7ff1d8"},
+    {file = "s3torchconnectorclient-1.2.5-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:8244bc3147657d660b6722979bb2c5bbe371437caf9d80396cf618c1d17ca177"},
+    {file = "s3torchconnectorclient-1.2.5-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:47f3fcc79aeab66e1ce16dc5af635b0ca1d733b3d760456f66854efdc7fe9d30"},
+    {file = "s3torchconnectorclient-1.2.5-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:e41d4d9bf564e5165b8c1694623012cd7e5a458dc75dd71014903ab886918e43"},
+    {file = "s3torchconnectorclient-1.2.5-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:46c835a295adcdbbad4f599dd95c310856c9b273c08b02f2febd6c822adb027a"},
+    {file = "s3torchconnectorclient-1.2.5-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:14aded47be798102f0488d54992a2832b4046d18306940bb1241b5757ed6d4bb"},
+    {file = "s3torchconnectorclient-1.2.5-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:deb1af82b26c89b69e7c257d4d8b98c8713dd48951d22c3b38a6b1a446e2cd51"},
+    {file = "s3torchconnectorclient-1.2.5-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:4d6d218bd2b9a855d417a6fb1c149dd164094f597552231d6aaf74371adc3a50"},
+    {file = "s3torchconnectorclient-1.2.5-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:797d08018e11ec14f294769459effdfeb81c6ab35e57ac17e1e8f87e93998e8b"},
+    {file = "s3torchconnectorclient-1.2.5-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:ab2d394cc3170793b97c3e64989a7a35d0f1526da2a7725bde97b78b72a24ef5"},
+    {file = "s3torchconnectorclient-1.2.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9e7091df4f495c9c543c8481f370b40bb960ba571bba19aab5ee0b29006f346a"},
+    {file = "s3torchconnectorclient-1.2.5-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:9db88b8a16ef31e7aa6bc6f3059e218d62092270d7578396722ef2aa7ee26608"},
+    {file = "s3torchconnectorclient-1.2.5-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:6983ab008621cedbbb954a27e16596c2d80f014b71c757f8dd8103e48c80259e"},
+    {file = "s3torchconnectorclient-1.2.5-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:7d14e93d1892a05b1ce3af36bbdba6942ac719ca82d68cd13da2045b1c29c833"},
+    {file = "s3torchconnectorclient-1.2.5-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:1fec956c07884f539b5e9a2f7372ae72d8862ea4bdbe4c8b00dfd293ca55e8b0"},
+    {file = "s3torchconnectorclient-1.2.5-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:51510d14f91f639072145d3649b7de7a3e85c0ee463c803a66de79fdf642d98b"},
+    {file = "s3torchconnectorclient-1.2.5-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:dda2a336cf67a0a738d2e3a15d0a4b5ff5fd63760ecf0504a6903fe11022756c"},
+    {file = "s3torchconnectorclient-1.2.5-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:7811d9fd42fd147450c48e237680f5d7c07985d1a4748f47263ceaebd576eff5"},
+    {file = "s3torchconnectorclient-1.2.5-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:19a5124ad1ec408de8d1d50c52c19868b1251c03e20cd74a03cb65dc99dbaba0"},
+    {file = "s3torchconnectorclient-1.2.5.tar.gz", hash = "sha256:ff51d6120b746f6e34bf6f5138a8400c14654ed0243c6a1eb56c1b98cec2f256"},
+]
+
+[package.extras]
+test = ["black", "flake8", "hypothesis", "mypy", "pytest", "pytest-timeout"]
+
+[[package]]
 name = "secretstorage"
 version = "3.3.3"
 description = "Python bindings to FreeDesktop.org Secret Service API"
@@ -3841,11 +3892,6 @@ files = [
     {file = "triton-3.0.0-1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:34e509deb77f1c067d8640725ef00c5cbfcb2052a1a3cb6a6d343841f92624eb"},
     {file = "triton-3.0.0-1-cp38-cp38-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:bcbf3b1c48af6a28011a5c40a5b3b9b5330530c3827716b5fbf6d7adcc1e53e9"},
     {file = "triton-3.0.0-1-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:6e5727202f7078c56f91ff13ad0c1abab14a0e7f2c87e91b12b6f64f3e8ae609"},
-    {file = "triton-3.0.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:39b052da883351fdf6be3d93cedae6db3b8e3988d3b09ed221bccecfa9612230"},
-    {file = "triton-3.0.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:cd34f19a8582af96e6291d4afce25dac08cb2a5d218c599163761e8e0827208e"},
-    {file = "triton-3.0.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:0d5e10de8c011adeb7c878c6ce0dd6073b14367749e34467f1cff2bde1b78253"},
-    {file = "triton-3.0.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e8903767951bf86ec960b4fe4e21bc970055afc65e9d57e916d79ae3c93665e3"},
-    {file = "triton-3.0.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:41004fb1ae9a53fcb3e970745feb87f0e3c94c6ce1ba86e95fa3b8537894bef7"},
 ]
 
 [package.dependencies]
@@ -4286,4 +4332,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.12,<3.13"
-content-hash = "ba0c93d3e8bfa8c823bce0b3cf05f44f7f02c2a783767a49bc45f05094e90883"
+content-hash = "a80e8429fcb5dc51d48c6ce501d12ae1ae7ae76068ab9196b9ac823e1710a4b8"
