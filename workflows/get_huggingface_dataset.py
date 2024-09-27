@@ -1,6 +1,8 @@
 import pandas as pd
-from flytekit import ImageSpec, task, Deck
+from datasets import load_dataset
+from flytekit import Deck, ImageSpec, task
 from flytekitplugins.deck.renderer import ImageRenderer
+
 
 @task(
     cache=True,
@@ -8,7 +10,9 @@ from flytekitplugins.deck.renderer import ImageRenderer
     enable_deck=True,
     container_image=ImageSpec(
         packages=[
-            "datasets==3.0.0"
+            "datasets==3.0.0",
+            "flytekitplugins-deck-standard==1.13.5",
+            "pillow==10.4.0",
         ],
         python_version="3.12",
         registry="registry.h-its.org/doserbd/flyte",
@@ -16,9 +20,8 @@ from flytekitplugins.deck.renderer import ImageRenderer
 )
 def get_huggingface_dataset(name: str) -> pd.DataFrame:
 
-    from datasets import load_dataset
-    ds = load_dataset(name)
-    
-    Deck("Images", ImageRenderer().to_html(image_src=ds['train'][0]['image']))
-    
-    return pd.DataFrame(ds['train'])
+    dataset = load_dataset(name, split="train")
+
+    Deck("Images", ImageRenderer().to_html(image_src=dataset[0]["image"]))
+
+    return dataset.to_pandas()
