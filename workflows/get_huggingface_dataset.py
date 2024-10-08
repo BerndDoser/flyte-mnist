@@ -23,7 +23,7 @@ image = ImageSpec(
     enable_deck=True,
     container_image=image,
 )
-def get_huggingface_dataset(name: str) -> pd.DataFrame:
+def get_huggingface_dataset(dataset_name: str) -> pd.DataFrame:
     """
     Get a dataset from the Huggingface datasets library.
 
@@ -36,7 +36,7 @@ def get_huggingface_dataset(name: str) -> pd.DataFrame:
 
     ctx = current_context()
 
-    dataset = load_dataset(name, split="train")
+    dataset = load_dataset(dataset_name, split="train")
     ctx.default_deck.append(MarkdownRenderer().to_html("hey1"))
     deck = Deck("Images", ImageRenderer().to_html(dataset[0]["image"]))
     deck.append(MarkdownRenderer().to_html("hey2"))
@@ -62,7 +62,7 @@ def train_model(dataset: pd.DataFrame) -> float:
 
 
 @workflow
-def wf(name: str) -> float:
+def wf(dataset_name: str) -> float:
     """
     ML classification workflow.
 
@@ -72,7 +72,7 @@ def wf(name: str) -> float:
     Returns:
         loss (float): The loss of the model.
     """
-    dataset = get_huggingface_dataset(name=name)
+    dataset = get_huggingface_dataset(dataset_name)
     loss = train_model(dataset)
     return loss
 
