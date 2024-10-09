@@ -1,25 +1,5 @@
-# %% [markdown]
-# (pytorch_single_node_and_gpu)=
-#
-# # Single Node, Single GPU Training
-#
-# Training a model on a single node on one GPU is as trivial as writing any Flyte task and simply setting the GPU to `1`.
-# As long as the Docker image is built correctly with the right version of the GPU drivers and the Flyte backend is
-# provisioned to have GPU machines, Flyte will execute the task on a node that has GPU(s).
-#
-# Currently, Flyte does not provide any specific task type for PyTorch (though it is entirely possible to provide a task-type
-# that supports *PyTorch-Ignite* or *PyTorch Lightning* support, but this is not critical). One can request for a GPU, simply
-# by setting GPU="1" resource request and then at runtime, the GPU will be provisioned.
-#
-# In this example, we'll see how we can create any PyTorch model, train it using Flyte and a specialized container. The following video will outline the basics of this process.
-#
-# ```{eval-rst}
-# ..  youtube:: sJrERMVtxL4
-# ```
+# Source: https://docs.flyte.org/en/latest/flytesnacks/examples/mnist_classifier/pytorch_single_node_and_gpu.html
 
-# %% [markdown]
-# First, let's import the libraries.
-# %%
 import json
 import os
 import typing
@@ -28,31 +8,25 @@ from dataclasses import dataclass
 import torch
 import torch.nn.functional as F
 from dataclasses_json import dataclass_json
-from flytekit import Resources, task, workflow
+from flytekit import ImageSpec, PodTemplate, Resources, task, workflow
 from flytekit.types.file import PythonPickledFile
+from kubernetes.client.models import (
+    V1Container,
+    V1EmptyDirVolumeSource,
+    V1PodSpec,
+    V1Volume,
+    V1VolumeMount,
+)
 from torch import distributed as dist
 from torch import nn, optim
 from torchvision import datasets, transforms
 
 import wandb
 
-# %% [markdown]
-# Let's define some variables to be used later. The following variables are specific to `wandb`:
-#
-# - `NUM_BATCHES_TO_LOG`: Number of batches to log from the test data for each test step
-# - `LOG_IMAGES_PER_BATCH`: Number of images to log per test batch
-# %%
 NUM_BATCHES_TO_LOG = 10
 LOG_IMAGES_PER_BATCH = 32
 
 
-# %% [markdown]
-# If running remotely, copy your `wandb` API key to the Dockerfile under the environment variable `WANDB_API_KEY`.
-# This function logs into `wandb` and initializes the project. If you built your Docker image with the
-# `WANDB_USERNAME`, this will work. Otherwise, replace `my-user-name` with your `wandb` user name.
-#
-# We'll call this function in the `pytorch_mnist_task` defined below.
-# %%
 def wandb_setup():
     wandb.login()
     wandb.init(
@@ -61,13 +35,6 @@ def wandb_setup():
     )
 
 
-# %% [markdown]
-# ## Creating the Network
-#
-# We use a simple PyTorch model with {py:class}`torch:torch.nn.Conv2d` and {py:class}`torch:torch.nn.Linear` layers.
-# Let's also use {py:func}`torch:torch.nn.functional.relu`, {py:func}`torch:torch.nn.functional.max_pool2d`, and
-# {py:func}`torch:torch.nn.functional.relu` to define the forward pass.
-# %%
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -87,11 +54,6 @@ class Net(nn.Module):
         return F.log_softmax(x, dim=1)
 
 
-# %% [markdown]
-# ## The Data Loader
-
-
-# %%
 def mnist_dataloader(batch_size, train=True, **kwargs):
     return torch.utils.data.DataLoader(
         datasets.MNIST(
@@ -108,12 +70,6 @@ def mnist_dataloader(batch_size, train=True, **kwargs):
     )
 
 
-# %% [markdown]
-# ## Training
-#
-# We define a `train` function to enclose the training loop per epoch, i.e., this gets called for every successive epoch.
-# Additionally, we log the loss and epoch progression, which can later be visualized in a `wandb` dashboard.
-# %%
 def train(model, device, train_loader, optimizer, epoch, log_interval):
     model.train()
 
@@ -144,9 +100,6 @@ def train(model, device, train_loader, optimizer, epoch, log_interval):
             wandb.log({"loss": loss, "epoch": epoch})
 
 
-# %% [markdown]
-# We define a test logger function which will be called when we run the model on test dataset.
-# %%
 def log_test_predictions(images, labels, outputs, predicted, my_table, log_counter):
     """
     Convenience function to log predictions for a batch of test images
@@ -165,14 +118,6 @@ def log_test_predictions(images, labels, outputs, predicted, my_table, log_count
             break
 
 
-# %% [markdown]
-# ## Evaluation
-#
-# We define a `test` function to test the model on the test dataset.
-#
-# We log `accuracy`, `test_loss`, and a `wandb` [table](https://docs.wandb.ai/guides/data-vis/log-tables).
-# The `wandb` table can help in depicting the model's performance in a structured format.
-# %%
 def test(model, device, test_loader):
     # ``wandb`` tabular columns
     columns = ["id", "image", "guess", "truth"]
@@ -226,11 +171,6 @@ def test(model, device, test_loader):
     return accuracy
 
 
-# %% [markdown]
-# ## Hyperparameters
-#
-# We define a few hyperparameters for training our model.
-# %%
 @dataclass_json
 @dataclass
 class Hyperparameters(object):
@@ -256,44 +196,44 @@ class Hyperparameters(object):
     learning_rate: float = 0.01
 
 
-# %% [markdown]
-# ## Training and Evaluating
-#
-# The output model using {py:func}`torch:torch.save` saves the `state_dict` as described
-# [in pytorch docs](https://pytorch.org/tutorials/beginner/saving_loading_models.html#saving-and-loading-models).
-# A common convention is to have the `.pt` extension for the model file.
-#
-# :::{note}
-# Note the usage of `requests=Resources(gpu="1")`. This will force Flyte to allocate this task onto a machine with GPU(s).
-# The task will be queued up until a machine with GPU(s) can be procured. Also, for the GPU Training to work, the
-# Dockerfile needs to be built as explained in the {ref}`pytorch-dockerfile` section.
-# :::
-# %%
 TrainingOutputs = typing.NamedTuple(
     "TrainingOutputs",
     epoch_accuracies=typing.List[float],
     model_state=PythonPickledFile,
 )
 
-# %% [markdown]
-# Set memory, gpu and storage depending on whether we are trying to register against sandbox or not...
-# %%
-if os.getenv("SANDBOX") != "":
-    print(f"SANDBOX ENV: '{os.getenv('SANDBOX')}'")
-    mem = "100Mi"
-    gpu = "0"
-else:
-    print(f"SANDBOX ENV: '{os.getenv('SANDBOX')}'")
-    mem = "32Gi"
-    gpu = "1"
+
+custom_image = ImageSpec(
+    packages=[
+        "torch",
+        "torchvision",
+        "flytekitplugins-kfpytorch",
+        "kubernetes",
+        "lightning",
+    ],
+    python_version="3.10",
+    registry="registry.h-its.org/doserbd/flyte",
+)
+
+
+container = V1Container(
+    name=custom_image.name,
+    volume_mounts=[V1VolumeMount(mount_path="/dev/shm", name="dshm")],
+)
+volume = V1Volume(name="dshm", empty_dir=V1EmptyDirVolumeSource(medium="Memory"))
+ps = PodTemplate(
+    primary_container_name=custom_image.name,
+    pod_spec=V1PodSpec(
+        runtime_class_name="nvidia", containers=[container], volumes=[volume]
+    ),
+)
 
 
 @task(
-    retries=2,
-    cache=True,
-    cache_version="1.0",
-    requests=Resources(gpu=gpu, mem=mem),
-    limits=Resources(gpu=gpu, mem=mem),
+    container_image=custom_image,
+    requests=Resources(gpu="1", mem="3Gi"),
+    limits=Resources(gpu="1", mem="3Gi"),
+    pod_template=ps,
 )
 def pytorch_mnist_task(hp: Hyperparameters) -> TrainingOutputs:
     wandb_setup()
@@ -340,9 +280,6 @@ def pytorch_mnist_task(hp: Hyperparameters) -> TrainingOutputs:
     )
 
 
-# %% [markdown]
-# Finally, we define a workflow to run the training algorithm. We return the model and accuracies.
-# %%
 @workflow
 def pytorch_training_wf(
     hp: Hyperparameters = Hyperparameters(epochs=10, batch_size=128)
@@ -350,40 +287,9 @@ def pytorch_training_wf(
     return pytorch_mnist_task(hp=hp)
 
 
-# %% [markdown]
-# ## Running the Model Locally
-#
-# It is possible to run the model locally with almost no modifications (as long as the code takes care of resolving
-# if the code is distributed or not). This is how we can do it:
-# %%
 if __name__ == "__main__":
     model, accuracies = pytorch_training_wf(
         hp=Hyperparameters(epochs=10, batch_size=128)
     )
     print(f"Model: {model}, Accuracies: {accuracies}")
-
-# %% [markdown]
-# ## Weights & Biases Report
-#
-# Lastly, let's look at the reports that are generated by the model.
-#
-# :::{figure} https://raw.githubusercontent.com/flyteorg/static-resources/main/flytesnacks/tutorials/pytorch/single-node/wandb_graphs.png
-# :alt: Wandb Graphs
-# :class: with-shadow
-#
-# Wandb Graphs
-# :::
-#
-# :::{figure} https://raw.githubusercontent.com/flyteorg/static-resources/main/flytesnacks/tutorials/pytorch/single-node/wandb_table.png
-# :alt: Wandb Table
-# :class: with-shadow
-#
-# Wandb Table
-# :::
-#
-# You can refer to the complete `wandb` report [here](https://wandb.ai/samhita-alla/pytorch-single-node/reports/PyTorch-Single-Node-Training-Report--Vmlldzo4NzUwNjA).
-#
-# :::{tip}
-# A lot more customizations can be done to the report according to your requirement!
-# :::
-#
+    print(f"Model: {model}, Accuracies: {accuracies}")

@@ -26,8 +26,6 @@ custom_image = ImageSpec(
         "kubernetes",
         "lightning",
     ],
-    # use the cuda and python_version arguments to build a CUDA image
-    # cuda="12.1.0",
     python_version="3.10",
     registry="registry.h-its.org/doserbd/flyte",
 )
