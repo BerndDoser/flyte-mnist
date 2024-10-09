@@ -17,10 +17,10 @@ namespace="flytesnacks-development"
 
 ## Print logs of a single pod
 # %%
-pod_name="apv7fpcvrhtjfs2mj6kn-n0-0"
+pod_name="anlzzfv2jss8chz6lg4s-n0-0"
 
 # %%
-kubectl logs --namespace={namespace} {pod_name}
+!kubectl logs --namespace={namespace} {pod_name}
 
 
 ## Enter running pod
