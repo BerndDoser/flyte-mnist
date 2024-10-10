@@ -25,6 +25,7 @@ custom_image = ImageSpec(
         "flytekitplugins-kfpytorch",
         "kubernetes",
         "lightning",
+        "wandb",
     ],
     python_version="3.10",
     registry="registry.h-its.org/doserbd/flyte",
