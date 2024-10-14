@@ -143,3 +143,4 @@ intro-union.ipynb
 data/
 wandb/
 mnist_cnn.pt
+simple_wf.py
