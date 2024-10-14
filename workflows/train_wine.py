@@ -5,7 +5,6 @@ from sklearn.datasets import load_wine
 from sklearn.linear_model import LogisticRegression
 
 
-# @task decorators define the building blocks of your pipeline
 @task
 def get_data() -> pd.DataFrame:
     """Get the wine dataset."""
@@ -26,7 +25,6 @@ def train_model(data: pd.DataFrame) -> FlytePickle:
     return LogisticRegression(max_iter=1000).fit(features, target)
 
 
-# @workflows decorators define the flow of data through the tasks
 @workflow
 def training_workflow() -> FlytePickle:
     """Put all of the steps together into a single workflow."""
@@ -36,7 +34,4 @@ def training_workflow() -> FlytePickle:
 
 
 if __name__ == "__main__":
-    # You can run this script with pre-defined arguments with `python flyte_workflow.py`
-    # but we recommend running it with the `pyflyte run` CLI command, as you'll see in
-    # the next step of this walkthrough.
     print(f"Running training_workflow() {training_workflow()}")
